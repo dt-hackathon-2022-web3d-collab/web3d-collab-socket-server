@@ -15,6 +15,8 @@ import { UserJoin } from './dto/message.dto';
 import { SessionUsersService } from './session-users.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { UpdateEvent } from './events/update-event';
+import { plainToInstance } from 'class-transformer';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @WebSocketGateway({
   cors: {
@@ -31,7 +33,7 @@ export class SessionsGateway implements OnGatewayDisconnect {
     private readonly userService: UserService,
     private readonly broadcastService: BroadcastService,
     private readonly sessionUsersService: SessionUsersService,
-  ) {}
+  ) { }
 
   async handleDisconnect(socket: Socket): Promise<void> {
     //const user = await this.sessionUsersService.getUserFromSocket(socket.id);
@@ -48,10 +50,12 @@ export class SessionsGateway implements OnGatewayDisconnect {
       `User: ${joinMsg.name} connecting to Session: ${joinMsg.sessionId}`,
     );
 
-    const user = await this.userService.createUser(joinMsg.sessionId, {
+    const userDto = plainToInstance(CreateUserDto, {
       name: joinMsg.name,
       online: true,
-    });
+    })
+
+    const user = await this.userService.createUser(joinMsg.sessionId, userDto);
 
     this.logger.debug(
       `Storing join information ${socket.id},${user.id},${joinMsg.sessionId}`,
@@ -80,8 +84,8 @@ export class SessionsGateway implements OnGatewayDisconnect {
 */
 
 
-@OnEvent('update', { async: true })
-async handleUpdateEvent(event: UpdateEvent) {
-  await this.server.to(event.sessionId).emit(event.type, {sessionId: event.sessionId, type: event.type});
-}
+  @OnEvent('update', { async: true })
+  async handleUpdateEvent(event: UpdateEvent) {
+    await this.server.to(event.sessionId).emit(event.type, {});
+  }
 }

@@ -2,7 +2,7 @@ import { Socket } from 'socket.io';
 
 export class BroadcastService {
   public updateUserList(socket: Socket, sessionId: string) {
-    socket.broadcast.to(sessionId).emit('users.list', '');
+    socket.broadcast.to(sessionId).emit('users', {});
   }
 
   public updatePosition(socket: Socket, sessionId: string) {
@@ -10,6 +10,6 @@ export class BroadcastService {
   }
 
   public updateAnnotationList(socket: Socket, sessionId: string) {
-    socket.broadcast.to(sessionId).emit('annotation.list', '');
+    socket.broadcast.to(sessionId).emit('annotation', {});
   }
 }

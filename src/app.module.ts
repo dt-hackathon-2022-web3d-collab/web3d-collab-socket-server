@@ -1,9 +1,9 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { SocketsModule } from './sockets/sockets.module';
-
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [CacheModule.register({isGlobal: true}),SocketsModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), CacheModule.register({isGlobal: true}),SocketsModule],
   controllers: [],
   providers: [],
 })
