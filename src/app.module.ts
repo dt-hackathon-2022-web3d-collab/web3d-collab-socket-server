@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { CacheModule, Module } from '@nestjs/common';
+import { SocketsModule } from './sockets/sockets.module';
+
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [CacheModule.register({isGlobal: true}),SocketsModule],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
