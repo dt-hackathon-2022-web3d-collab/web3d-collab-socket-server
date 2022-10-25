@@ -35,7 +35,10 @@ export class UserService {
   }
 
   async setOffline(sessionId: string, userId: string): Promise<User> {
-    return new User();
-    //return await this.updateUser(sessionId, userId, { online: false });
+    const userOb = this.httpService.patch(
+        `${this.configService.get('ENDPOINT')}/v1/sessions/${sessionId}/users/${userId}`,{
+            online: false
+        });
+    return (await lastValueFrom(userOb)).data;
   }
 }
