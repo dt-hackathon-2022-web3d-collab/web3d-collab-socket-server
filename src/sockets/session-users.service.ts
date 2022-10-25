@@ -1,7 +1,8 @@
-import { CACHE_MANAGER, Inject, NotFoundException } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { SessionUser } from './dto/session-user';
 
+@Injectable()
 export class SessionUsersService {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
