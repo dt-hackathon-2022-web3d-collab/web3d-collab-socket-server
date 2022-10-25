@@ -13,6 +13,7 @@ import { UserService } from '../crud/users.service';
 import { BroadcastService } from './brodcast.service';
 import { UserJoin } from './dto/message.dto';
 import { SessionUsersService } from './session-users.service';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @WebSocketGateway({
   cors: {
@@ -76,4 +77,10 @@ export class SessionsGateway implements OnGatewayDisconnect {
     return undefined;
   }
 */
+
+
+@OnEvent('users', { async: true })
+handleUsersEvent(payload: any) {
+  console.log(payload);
+}
 }

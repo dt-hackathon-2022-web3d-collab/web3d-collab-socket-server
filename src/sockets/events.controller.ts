@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post } from "@nestjs/common";
+import { Body, Controller, Logger, Param, Post } from "@nestjs/common";
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Controller([
@@ -7,17 +7,17 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 ])
 export class EventsController {
 
+    private readonly logger = new Logger(EventsController.name);
 
-    constructor(private eventEmitter: EventEmitter2) {}
-    
+    constructor(private eventEmitter: EventEmitter2) { }
+
     @Post()
-    async sessionDataUpdate(
-        @Param('sessionId')
-        sessionId: string,
-        @Param('type')
-        type: string,
+    async sessionDataUpdated(
+        @Param('sessionId') sessionId: string,
+        @Param('type') type: string,
         @Body() body: any,
     ): Promise<any> {
-this.eventEmitter.emit('type', {})
+        console.log('emit')
+        await this.eventEmitter.emit('users', body)
     }
 }
