@@ -5,7 +5,7 @@ import { BroadcastService } from './brodcast.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SessionUsersService } from './session-users.service';
 import { SessionsGateway } from './sessions.gateway';
-import { EventsController } from './events.controller';
+import { EventsController } from './events/events.controller';
 
 @Global()
 @Module({
