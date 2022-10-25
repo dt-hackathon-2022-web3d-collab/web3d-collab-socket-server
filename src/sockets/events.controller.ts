@@ -18,6 +18,6 @@ export class EventsController {
         type: string,
         @Body() body: any,
     ): Promise<any> {
-
+this.eventEmitter.emit('type', {})
     }
 }
