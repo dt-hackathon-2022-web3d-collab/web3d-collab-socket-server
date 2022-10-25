@@ -17,7 +17,7 @@ export class EventsController {
         @Param('type') type: string,
         @Body() body: any,
     ): Promise<any> {
-        console.log('emit')
+        this.logger.debug(`Emitting ${type}`);
         await this.eventEmitter.emit('users', body)
     }
 }
