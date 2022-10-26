@@ -139,7 +139,8 @@ export class SessionsGateway
       `Broadcasting Camera transform from user ${user.id} to session ${user.sessionId} coming from ${socket.handshake.address}`,
     );
 
-    socket.broadcast.in(user.sessionId).emit('camera-transform', {
+    //broadcast.
+    socket.in(user.sessionId).emit('camera-transform', {
       userId: user.id,
       sessionId: user.sessionId,
       transform,
