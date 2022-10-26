@@ -139,7 +139,7 @@ export class SessionsGateway
   }
 
   @SubscribeMessage('camera-transform')
-  async identity(
+  async cameraTransform(
     @MessageBody() transform: any,
     @ConnectedSocket() socket: Socket,
   ): Promise<number> {
@@ -161,6 +161,29 @@ export class SessionsGateway
       userId: user.id,
       sessionId: user.sessionId,
       transform,
+    });
+    return undefined;
+  }
+
+  @SubscribeMessage('variant-change')
+  async variantChange(
+    @MessageBody() variant: any,
+    @ConnectedSocket() socket: Socket,
+  ): Promise<number> {
+    this.logger.debug(`Variant changefrom socket ${socket.id}`);
+    this.logger.debug(JSON.stringify(variant));
+    const user = await this.sessionUsersService.changeVariant(
+      socket.id,
+      variant,
+    );
+    this.logger.debug(
+      `Broadcasting Variant updated from user ${user.id} to session ${user.sessionId} coming from ${socket.handshake.address}`,
+    );
+
+    socket.in(user.sessionId).emit('variant-updated', {
+      userId: user.id,
+      sessionId: user.sessionId,
+      variant,
     });
     return undefined;
   }
