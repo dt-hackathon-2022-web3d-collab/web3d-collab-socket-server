@@ -140,7 +140,7 @@ export class SessionsGateway
     );
 
     //broadcast.
-    socket.in(user.sessionId).emit('camera-transform', {
+    socket.in(user.sessionId).emit('camera-updated', {
       userId: user.id,
       sessionId: user.sessionId,
       transform,
