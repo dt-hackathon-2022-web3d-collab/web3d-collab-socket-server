@@ -22,6 +22,7 @@ export class SessionsCleanup {
     }
 
     const sessions = {};
+    this.logger.debug(`Grouping sockets by sessions`);
     Object.keys(sockets).forEach((key: string) => {
       const socket = sockets[key];
       if (!sessions[socket.sessionId]) {
@@ -30,6 +31,7 @@ export class SessionsCleanup {
       sessions[socket.sessionId].push(socket.userId);
     });
 
+    this.logger.debug(`Sending cleanup call for each session`);
     const promises = Object.keys(sessions)
       .filter((sessionId: string) => {
         return sessionId !== '';
