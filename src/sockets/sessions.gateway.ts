@@ -58,13 +58,16 @@ export class SessionsGateway
       this.logger.debug(
         `Setting user ${user.id} for session ${user.sessionId} offline`,
       );
-      await this.userService.setOffline(user.sessionId, user.id);
-      //this.logger.debug(`Removing socket ${socket.id} from list`);
-      //await this.sessionUsersService.leave(socket.id);
-      this.logger.debug(
-        `Broadcasting user list message to session ${user.sessionId}`,
-      );
-      this.updateUserList(socket, user.sessionId);
+      if (user.sessionId !== '') {
+        await this.userService.setOffline(user.sessionId, user.id);
+
+        //this.logger.debug(`Removing socket ${socket.id} from list`);
+        //await this.sessionUsersService.leave(socket.id);
+        this.logger.debug(
+          `Broadcasting user list message to session ${user.sessionId}`,
+        );
+        this.updateUserList(socket, user.sessionId);
+      }
     } catch (exception) {
       this.logger.error(exception);
     }
