@@ -68,7 +68,9 @@ export class SessionsGateway implements OnGatewayDisconnect {
         name: joinMsg.name,
         online: true,
       });
-
+      this.logger.debug(
+        `Creating new User ${joinMsg.name} in Session: ${joinMsg.sessionId}`,
+      );
       user = await this.userService.createUser(joinMsg.sessionId, userDto);
 
       this.logger.debug(
