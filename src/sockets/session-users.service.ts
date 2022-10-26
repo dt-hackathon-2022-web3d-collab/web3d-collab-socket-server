@@ -21,6 +21,10 @@ export class SessionUsersService {
     return this.saveUser(socketId, user);
   }
 
+  public async leave(socketId: string) : Promise<void> {
+    await this.cacheManager.del(socketId);
+  }
+
   public async getUserFromSocket(socketId: string): Promise<SessionUser> {
 
     const user = await this.getUser(socketId);
