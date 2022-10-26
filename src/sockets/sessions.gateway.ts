@@ -38,7 +38,7 @@ export class SessionsGateway implements OnGatewayDisconnect {
 
   async handleDisconnect(socket: Socket): Promise<void> {
     try {
-      this.logger.debug(`Disconnecting user for socker ${socket.id}`);
+      this.logger.debug(`Disconnecting user for socket ${socket.id}`);
       const user = await this.sessionUsersService.getUserFromSocket(socket.id);
       this.logger.debug(
         `Setting user ${user.id} for session ${user.sessionId} offline`,
