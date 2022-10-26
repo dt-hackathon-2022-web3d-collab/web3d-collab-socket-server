@@ -56,7 +56,7 @@ export class SessionsGateway
       );
       const user = await this.sessionUsersService.getUserFromSocket(socket.id);
       this.logger.debug(
-        `Setting user ${user.id} for session ${user.sessionId} offline`,
+        `Setting user "${user.id}" for session "${user.sessionId}" offline`,
       );
       if (user.sessionId !== '') {
         await this.userService.setOffline(user.sessionId, user.id);
@@ -109,20 +109,24 @@ export class SessionsGateway
     this.logger.debug(
       `Adding socket ${socket.id} to list for session ${joinMsg.sessionId} and user ${user.id} coming from ${socket.handshake.address}`,
     );
-    await this.sessionUsersService.join(
-      joinMsg.sessionId,
-      user.id,
-      socket.id,
-      socket.handshake.address,
-    );
-    this.logger.debug(`socket.join(${joinMsg.sessionId});`);
-    await socket.join(joinMsg.sessionId);
-
-    this.logger.debug(
-      `Broadcasting user list message to session ${joinMsg.sessionId}`,
-    );
-    this.updateUserList(socket, joinMsg.sessionId);
-
+    try {
+      const joinResult = await this.sessionUsersService.join(
+        joinMsg.sessionId,
+        user.id,
+        socket.id,
+        socket.handshake.address,
+      );
+      this.logger.debug(joinResult);
+      this.logger.debug(`socket.join(${joinMsg.sessionId});`);
+      const socketJoinResult = await socket.join(joinMsg.sessionId);
+      this.logger.debug(socketJoinResult);
+      this.logger.debug(
+        `Broadcasting user list message to session ${joinMsg.sessionId}`,
+      );
+      this.updateUserList(socket, joinMsg.sessionId);
+    } catch (exception) {
+      this.logger.error(exception);
+    }
     return user;
   }
 
