@@ -11,7 +11,12 @@ import { EventsController } from './events/events.controller';
 @Module({
   imports: [HttpModule, EventEmitterModule.forRoot()],
   controllers: [EventsController],
-  providers: [UserService, SessionUsersService, SessionsGateway, BroadcastService],
+  providers: [
+    UserService,
+    SessionUsersService,
+    SessionsGateway,
+    BroadcastService,
+  ],
   exports: [],
 })
 export class SocketsModule {}

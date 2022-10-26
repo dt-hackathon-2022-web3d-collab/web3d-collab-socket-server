@@ -34,7 +34,7 @@ export class SessionsGateway implements OnGatewayDisconnect {
     private readonly userService: UserService,
     private readonly broadcastService: BroadcastService,
     private readonly sessionUsersService: SessionUsersService,
-  ) { }
+  ) {}
 
   async handleDisconnect(socket: Socket): Promise<void> {
     const user = await this.sessionUsersService.getUserFromSocket(socket.id);
@@ -55,7 +55,7 @@ export class SessionsGateway implements OnGatewayDisconnect {
     const userDto = plainToInstance(CreateUserDto, {
       name: joinMsg.name,
       online: true,
-    })
+    });
 
     const user = await this.userService.createUser(joinMsg.sessionId, userDto);
 
@@ -63,11 +63,7 @@ export class SessionsGateway implements OnGatewayDisconnect {
       `Storing join information ${socket.id},${user.id},${joinMsg.sessionId}`,
     );
 
-    await this.sessionUsersService.join(
-      joinMsg.sessionId,
-      user.id,
-      socket.id,
-    ); 
+    await this.sessionUsersService.join(joinMsg.sessionId, user.id, socket.id);
     await socket.join(joinMsg.sessionId);
 
     this.broadcastService.updateUserList(socket, joinMsg.sessionId);
@@ -75,21 +71,25 @@ export class SessionsGateway implements OnGatewayDisconnect {
     return user;
   }
 
-  
   @SubscribeMessage('camera-transform')
-  async identity(@MessageBody() transform: any, @ConnectedSocket() socket: Socket): Promise<number> {
+  async identity(
+    @MessageBody() transform: any,
+    @ConnectedSocket() socket: Socket,
+  ): Promise<number> {
     this.logger.debug(`Camera transform`);
     this.logger.debug(transform);
     const user = await this.sessionUsersService.transform(socket.id, transform);
-    socket.broadcast.in(user.sessionId).emit('camera-transform',{ userId: user.id, sessionId: user.sessionId, transform});
+    socket.broadcast.in(user.sessionId).emit('camera-transform', {
+      userId: user.id,
+      sessionId: user.sessionId,
+      transform,
+    });
     return undefined;
   }
 
-
-
   @OnEvent('update', { async: true })
   async handleUpdateEvent(event: UpdateEvent) {
-    this.logger.debug(`Update: ${event.sessionId} ${event.type}`)
+    this.logger.debug(`Update: ${event.sessionId} ${event.type}`);
     await this.server.to(event.sessionId).emit(event.type, {});
   }
 }

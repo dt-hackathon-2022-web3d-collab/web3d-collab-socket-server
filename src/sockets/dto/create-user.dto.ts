@@ -1,5 +1,5 @@
 export class CreateUserDto {
-    name: string;
-  
-    online?: boolean = false;
-  }
+  name: string;
+
+  online?: boolean = false;
+}
