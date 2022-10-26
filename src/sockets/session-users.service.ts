@@ -4,76 +4,73 @@ import { SessionUser } from './dto/session-user';
 
 @Injectable()
 export class SessionUsersService {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) { }
 
   public async join(sessionId: string, userId: string, socketId: string) {
-    let user = <SessionUser>await this.cacheManager.get(userId);
+    let user = <SessionUser>await this.cacheManager.get(socketId);
     if (!user) {
       user = {
         id: userId,
         sessionId: sessionId,
-        lastPosition: null,
+        lastTransform: null,
         lastVariant: null,
       };
     }
 
     console.log('saving socket ' + socketId);
-    await this.cacheManager.set(socketId, { sessionId, id: userId }, 0);
-    console.log('saving user');
-    return this.saveUser(user);
+    return this.saveUser(socketId, user);
   }
 
   public async getUserFromSocket(socketId: string): Promise<SessionUser> {
-    const user: any = await this.cacheManager.get(socketId);
-    console.log(`user: ${user}`);
-    if (user) {
-      const socketUser = await this.getUser(user.sessionId, user.id);
-      if (socketUser) {
-        return socketUser;
-      }
-    }
 
-    throw new NotFoundException(`User not found for socket ${socketId}`);
+    const user = await this.getUser(socketId);
+    if (!user) {
+      throw new NotFoundException(`User not found for socket ${socketId}`);
+    }
+    return user;
+
+
   }
 
-  public async changePosition(
-    sessionId: string,
-    userId: string,
-    position: any,
-  ) {
-    const user = await this.getUser(sessionId, userId);
+  public async transform(
+    socketId: string,
+    transform: any,
+  ): Promise<SessionUser> {
+    const user = await this.getUser(socketId);
 
-    user.lastPosition = position;
-    return this.saveUser(user);
+    user.lastTransform = transform;
+    await this.saveUser(socketId, user);
+    return user;
   }
 
   public async changeVariant(
-    sessionId: string,
-    userId: string,
+    socketId: string,
     lastVariant: any,
-  ) {
-    const user = await this.getUser(sessionId, userId);
+  ): Promise<SessionUser> {
+    const user = await this.getUser(socketId);
 
     user.lastVariant = lastVariant;
-    return this.saveUser(user);
+    await this.saveUser(socketId, user);
+    return user;
   }
 
   public async getUser(
-    sessionId: string,
-    userId: string,
+    socketId: string,
   ): Promise<SessionUser> {
     const user = <SessionUser>(
-      await this.cacheManager.get(`${sessionId}:${userId}`)
+      await this.cacheManager.get(socketId)
     );
 
     if (!user) {
-      throw new NotFoundException(`User ID ${userId} not found`);
+      throw new NotFoundException(`User ID for socket ${socketId} not found`);
     }
 
     return user;
   }
 
-  private async saveUser(user: SessionUser): Promise<void> {
-    await this.cacheManager.set(`${user.sessionId}:${user.id}`, user, 0);
+
+  private async saveUser(socketId: string, user: SessionUser): Promise<void> {
+    await this.cacheManager.set(socketId, user, 0);
   }
+
 }

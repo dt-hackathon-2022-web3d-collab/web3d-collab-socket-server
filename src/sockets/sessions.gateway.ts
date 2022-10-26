@@ -12,11 +12,12 @@ import { User } from '../crud/entities/user.entity';
 import { UserService } from '../crud/users.service';
 import { BroadcastService } from './brodcast.service';
 import { UserJoin } from './dto/message.dto';
-import { SessionUsersService } from './session-users.service';
+
 import { OnEvent } from '@nestjs/event-emitter';
 import { UpdateEvent } from './events/update-event';
 import { plainToInstance } from 'class-transformer';
 import { CreateUserDto } from './dto/create-user.dto';
+import { SessionUsersService } from './session-users.service';
 
 @WebSocketGateway({
   cors: {
@@ -61,11 +62,11 @@ export class SessionsGateway implements OnGatewayDisconnect {
       `Storing join information ${socket.id},${user.id},${joinMsg.sessionId}`,
     );
 
-    /*await this.sessionUsersService.join(
+    await this.sessionUsersService.join(
       joinMsg.sessionId,
       user.id,
       socket.id,
-    ); */
+    ); 
     await socket.join(joinMsg.sessionId);
 
     this.broadcastService.updateUserList(socket, joinMsg.sessionId);
@@ -73,15 +74,15 @@ export class SessionsGateway implements OnGatewayDisconnect {
     return user;
   }
 
-  /*
-  @SubscribeMessage('position')
-  async identity(@MessageBody() data: Message, @ConnectedSocket() socket: Socket): Promise<number> {
-
-    this.logger.debug(data)
-    socket.broadcast.in(data.sessionId).emit('position',data);
+  
+  @SubscribeMessage('camera-transform')
+  async identity(@MessageBody() transform: any, @ConnectedSocket() socket: Socket): Promise<number> {
+    
+    const user = await this.sessionUsersService.transform(socket.id, transform);
+    socket.broadcast.in(user.sessionId).emit('position',transform);
     return undefined;
   }
-*/
+
 
 
   @OnEvent('update', { async: true })

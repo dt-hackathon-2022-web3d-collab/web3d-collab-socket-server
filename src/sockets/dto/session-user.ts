@@ -3,7 +3,7 @@ export interface SessionUser {
 
   sessionId: string;
 
-  lastPosition: any;
+  lastTransform: any;
 
   lastVariant: any;
 }
