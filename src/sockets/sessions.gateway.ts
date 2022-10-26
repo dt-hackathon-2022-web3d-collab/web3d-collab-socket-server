@@ -8,15 +8,15 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { User } from '../crud/entities/user.entity';
+
 import { UserService } from '../crud/users.service';
 import { UserJoin } from './dto/message.dto';
-
 import { OnEvent } from '@nestjs/event-emitter';
 import { plainToInstance } from 'class-transformer';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateEvent } from './events/update-event';
 import { SessionUsersService } from './session-users.service';
+import { User } from 'src/crud/entities/user.entity';
 
 @WebSocketGateway({
   cors: {
