@@ -36,6 +36,8 @@ export class SessionUsersService {
     }
 
     this.logger.debug(`Saving socket ${socketId}`);
+    user.id = userId;
+    user.sessionId = sessionId;
     return this.saveUser(socketId, user);
   }
 
