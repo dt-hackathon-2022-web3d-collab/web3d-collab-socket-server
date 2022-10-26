@@ -81,7 +81,7 @@ export class SessionsGateway implements OnGatewayDisconnect {
     this.logger.debug(`Camera transform`);
     this.logger.debug(transform);
     const user = await this.sessionUsersService.transform(socket.id, transform);
-    socket.broadcast.in(user.sessionId).emit('position',transform);
+    socket.broadcast.in(user.sessionId).emit('camera-transform',{ userId: user.id, sessionId: user.sessionId, transform});
     return undefined;
   }
 
