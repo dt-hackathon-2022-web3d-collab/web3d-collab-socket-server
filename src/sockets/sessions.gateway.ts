@@ -61,13 +61,13 @@ export class SessionsGateway
       if (user.sessionId !== '') {
         await this.userService.setOffline(user.sessionId, user.id);
 
-        //this.logger.debug(`Removing socket ${socket.id} from list`);
-        //await this.sessionUsersService.leave(socket.id);
         this.logger.debug(
           `Broadcasting user list message to session ${user.sessionId}`,
         );
         this.updateUserList(socket, user.sessionId);
       }
+      this.logger.debug(`Removing socket ${socket.id} from list`);
+      await this.sessionUsersService.leave(socket.id);
     } catch (exception) {
       this.logger.error(exception);
     }
