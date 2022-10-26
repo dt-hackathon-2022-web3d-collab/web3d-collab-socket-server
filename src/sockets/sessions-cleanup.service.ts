@@ -31,10 +31,14 @@ export class SessionsCleanup {
       sessions[socket.sessionId].push(socket.userId);
     });
 
-    const promises = Object.keys(sessions).map((sessionId: string) => {
-      const users = sessions[sessionId];
-      return this.userService.cleanSessions(sessionId, users);
-    });
+    const promises = Object.keys(sessions)
+      .filter((sessionId: string) => {
+        return sessionId !== '';
+      })
+      .map((sessionId: string) => {
+        const users = sessions[sessionId];
+        return this.userService.cleanSessions(sessionId, users);
+      });
 
     await Promise.all(promises);
   }
