@@ -38,13 +38,22 @@ export class SessionsGateway
   ) {}
 
   async handleConnection(socket: Socket, ...args: any[]) {
-    this.logger.debug(`Connecting socket ${socket.id}`);
-    await this.sessionUsersService.join('', '', socket.id);
+    this.logger.debug(
+      `Connecting socket ${socket.id} coming from ${socket.handshake.address}`,
+    );
+    await this.sessionUsersService.join(
+      '',
+      '',
+      socket.id,
+      socket.handshake.address,
+    );
   }
 
   async handleDisconnect(socket: Socket): Promise<void> {
     try {
-      this.logger.debug(`Disconnecting user for socket ${socket.id}`);
+      this.logger.debug(
+        `Disconnecting user for socket ${socket.id} coming from ${socket.handshake.address} `,
+      );
       const user = await this.sessionUsersService.getUserFromSocket(socket.id);
       this.logger.debug(
         `Setting user ${user.id} for session ${user.sessionId} offline`,
@@ -70,7 +79,7 @@ export class SessionsGateway
 
     if (!joinMsg.userId) {
       this.logger.debug(
-        `User: ${joinMsg.name} connecting to Session: ${joinMsg.sessionId}`,
+        `User: ${joinMsg.name} connecting to Session: ${joinMsg.sessionId} coming from ${socket.handshake.address}`,
       );
       const userDto = plainToInstance(CreateUserDto, {
         name: joinMsg.name,
@@ -95,9 +104,14 @@ export class SessionsGateway
     }
 
     this.logger.debug(
-      `Adding socket ${socket.id} to list for session ${joinMsg.sessionId} and user ${user.id}`,
+      `Adding socket ${socket.id} to list for session ${joinMsg.sessionId} and user ${user.id} coming from ${socket.handshake.address}`,
     );
-    await this.sessionUsersService.join(joinMsg.sessionId, user.id, socket.id);
+    await this.sessionUsersService.join(
+      joinMsg.sessionId,
+      user.id,
+      socket.id,
+      socket.handshake.address,
+    );
     this.logger.debug(`socket.join(${joinMsg.sessionId});`);
     await socket.join(joinMsg.sessionId);
 
@@ -122,7 +136,7 @@ export class SessionsGateway
     this.logger.debug(JSON.stringify(transform));
     const user = await this.sessionUsersService.transform(socket.id, transform);
     this.logger.debug(
-      `Broadcasting Camera transform from user ${user.id} to session ${user.sessionId}`,
+      `Broadcasting Camera transform from user ${user.id} to session ${user.sessionId} coming from ${socket.handshake.address}`,
     );
 
     socket.broadcast.in(user.sessionId).emit('camera-transform', {

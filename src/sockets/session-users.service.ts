@@ -14,7 +14,12 @@ export class SessionUsersService {
 
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
-  public async join(sessionId: string, userId: string, socketId: string) {
+  public async join(
+    sessionId: string,
+    userId: string,
+    socketId: string,
+    address?: string,
+  ) {
     let user = <SessionUser>await this.cacheManager.get(socketId);
     if (!user) {
       user = {
@@ -22,10 +27,12 @@ export class SessionUsersService {
         sessionId: sessionId,
         lastTransform: null,
         lastVariant: null,
+        address,
       };
     } else {
       this.logger.debug(`Found existing user`);
       this.logger.debug(JSON.stringify(user));
+      user.address = address;
     }
 
     this.logger.debug(`Saving socket ${socketId}`);

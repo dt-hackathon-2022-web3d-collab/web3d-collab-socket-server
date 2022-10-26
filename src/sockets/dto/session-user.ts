@@ -6,4 +6,6 @@ export interface SessionUser {
   lastTransform: any;
 
   lastVariant: any;
+
+  address: string;
 }
