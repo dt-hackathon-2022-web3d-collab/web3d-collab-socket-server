@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
 import { CreateUserDto } from 'src/sockets/dto/create-user.dto';
 import { UserDto } from 'src/sockets/dto/user.dto';
@@ -8,6 +8,8 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
@@ -17,7 +19,7 @@ export class UserService {
     sessionId: string,
     createUserDto: CreateUserDto,
   ): Promise<UserDto> {
-    console.log(
+    this.logger.debug(
       `POST ${this.configService.get(
         'ENDPOINT',
       )}/v1/sessions/${sessionId}/users`,
@@ -32,7 +34,7 @@ export class UserService {
   }
 
   async getUser(sessionId: string, userId: string): Promise<UserDto> {
-    console.log(
+    this.logger.debug(
       `GET ${this.configService.get(
         'ENDPOINT',
       )}/v1/sessions/${sessionId}/users/${userId}`,
@@ -46,6 +48,11 @@ export class UserService {
   }
 
   async setOnline(sessionId: string, userId: string): Promise<User> {
+    this.logger.debug(
+      `PATCH ${this.configService.get(
+        'ENDPOINT',
+      )}/v1/sessions/${sessionId}/users/${userId}`,
+    );
     const userOb = this.httpService.patch(
       `${this.configService.get(
         'ENDPOINT',
@@ -58,6 +65,11 @@ export class UserService {
   }
 
   async setOffline(sessionId: string, userId: string): Promise<User> {
+    this.logger.debug(
+      `PATCH ${this.configService.get(
+        'ENDPOINT',
+      )}/v1/sessions/${sessionId}/users/${userId}`,
+    );
     const userOb = this.httpService.patch(
       `${this.configService.get(
         'ENDPOINT',

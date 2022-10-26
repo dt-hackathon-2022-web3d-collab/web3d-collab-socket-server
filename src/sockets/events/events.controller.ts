@@ -14,7 +14,7 @@ export class EventsController {
     @Param('type') type: string,
     @Body() body: any,
   ): Promise<any> {
-    this.logger.debug(`Emitting ${type} ${sessionId}`);
+    this.logger.debug(`Received new ${type} update for session ${sessionId}`);
     await this.eventEmitter.emit('update', new UpdateEvent(type, sessionId));
   }
 }

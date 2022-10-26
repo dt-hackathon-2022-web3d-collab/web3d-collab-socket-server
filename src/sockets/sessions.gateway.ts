@@ -8,16 +8,15 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { User } from '../crud/entities/user.entity';
-import { UserService } from '../crud/users.service';
-import { BroadcastService } from './brodcast.service';
-import { UserJoin } from './dto/message.dto';
 
+import { UserService } from '../crud/users.service';
+import { UserJoin } from './dto/message.dto';
 import { OnEvent } from '@nestjs/event-emitter';
-import { UpdateEvent } from './events/update-event';
 import { plainToInstance } from 'class-transformer';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateEvent } from './events/update-event';
 import { SessionUsersService } from './session-users.service';
+import { User } from 'src/crud/entities/user.entity';
 
 @WebSocketGateway({
   cors: {
@@ -32,13 +31,12 @@ export class SessionsGateway implements OnGatewayDisconnect {
 
   constructor(
     private readonly userService: UserService,
-    private readonly broadcastService: BroadcastService,
     private readonly sessionUsersService: SessionUsersService,
   ) {}
 
   async handleDisconnect(socket: Socket): Promise<void> {
     try {
-      this.logger.debug(`Disconnecting user for socker ${socket.id}`);
+      this.logger.debug(`Disconnecting user for socket ${socket.id}`);
       const user = await this.sessionUsersService.getUserFromSocket(socket.id);
       this.logger.debug(
         `Setting user ${user.id} for session ${user.sessionId} offline`,
@@ -46,8 +44,10 @@ export class SessionsGateway implements OnGatewayDisconnect {
       await this.userService.setOffline(user.sessionId, user.id);
       this.logger.debug(`Removing socket ${socket.id} from list`);
       await this.sessionUsersService.leave(socket.id);
-      this.logger.debug(`Broadcasting user list message to session`);
-      this.broadcastService.updateUserList(socket, user.sessionId);
+      this.logger.debug(
+        `Broadcasting user list message to session ${user.sessionId}`,
+      );
+      this.updateUserList(socket, user.sessionId);
     } catch (exception) {
       this.logger.error(exception);
     }
@@ -58,18 +58,19 @@ export class SessionsGateway implements OnGatewayDisconnect {
     @MessageBody() joinMsg: UserJoin,
     @ConnectedSocket() socket: Socket,
   ): Promise<User> {
-    this.logger.debug(
-      `User: ${joinMsg.name} connecting to Session: ${joinMsg.sessionId}`,
-    );
-
     let user;
 
     if (!joinMsg.userId) {
+      this.logger.debug(
+        `User: ${joinMsg.name} connecting to Session: ${joinMsg.sessionId}`,
+      );
       const userDto = plainToInstance(CreateUserDto, {
         name: joinMsg.name,
         online: true,
       });
-
+      this.logger.debug(
+        `Creating new User ${joinMsg.name} in Session: ${joinMsg.sessionId}`,
+      );
       user = await this.userService.createUser(joinMsg.sessionId, userDto);
 
       this.logger.debug(
@@ -77,17 +78,31 @@ export class SessionsGateway implements OnGatewayDisconnect {
       );
     } else {
       this.logger.debug(
+        `User: ${joinMsg.userId} connecting to Session: ${joinMsg.sessionId}`,
+      );
+      this.logger.debug(
         `Getting existing user ${joinMsg.userId} in session ${joinMsg.sessionId}`,
       );
       user = await this.userService.getUser(joinMsg.sessionId, joinMsg.userId);
     }
 
+    this.logger.debug(
+      `Adding socket ${socket.id} to list for session ${joinMsg.sessionId} and user ${user.id}`,
+    );
     await this.sessionUsersService.join(joinMsg.sessionId, user.id, socket.id);
+    this.logger.debug(`socket.join(${joinMsg.sessionId});`);
     await socket.join(joinMsg.sessionId);
 
-    this.broadcastService.updateUserList(socket, joinMsg.sessionId);
+    this.logger.debug(
+      `Broadcasting user list message to session ${joinMsg.sessionId}`,
+    );
+    this.updateUserList(socket, joinMsg.sessionId);
 
     return user;
+  }
+
+  private updateUserList(socket: Socket, sessionId: string) {
+    socket.broadcast.to(sessionId).emit('users', {});
   }
 
   @SubscribeMessage('camera-transform')
@@ -95,9 +110,13 @@ export class SessionsGateway implements OnGatewayDisconnect {
     @MessageBody() transform: any,
     @ConnectedSocket() socket: Socket,
   ): Promise<number> {
-    this.logger.debug(`Camera transform`);
-    this.logger.debug(transform);
+    this.logger.debug(`Camera transform from socket ${socket.id}`);
+    this.logger.debug(JSON.stringify(transform));
     const user = await this.sessionUsersService.transform(socket.id, transform);
+    this.logger.debug(
+      `Broadcasting Camera transform from user ${user.id} to session ${user.sessionId}`,
+    );
+
     socket.broadcast.in(user.sessionId).emit('camera-transform', {
       userId: user.id,
       sessionId: user.sessionId,
@@ -108,7 +127,9 @@ export class SessionsGateway implements OnGatewayDisconnect {
 
   @OnEvent('update', { async: true })
   async handleUpdateEvent(event: UpdateEvent) {
-    this.logger.debug(`Update: ${event.sessionId} ${event.type}`);
+    this.logger.debug(
+      `Broadcasting update refresh ${event.type} for ${event.sessionId}`,
+    );
     await this.server.to(event.sessionId).emit(event.type, {});
   }
 }
