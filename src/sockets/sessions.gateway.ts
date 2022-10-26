@@ -170,7 +170,7 @@ export class SessionsGateway
     @MessageBody() variant: any,
     @ConnectedSocket() socket: Socket,
   ): Promise<number> {
-    this.logger.debug(`Variant changefrom socket ${socket.id}`);
+    this.logger.debug(`Variant change from socket ${socket.id}`);
     this.logger.debug(JSON.stringify(variant));
     const user = await this.sessionUsersService.changeVariant(
       socket.id,

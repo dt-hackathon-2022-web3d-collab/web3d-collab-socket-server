@@ -6,12 +6,19 @@ import { EventsController } from './events/events.controller';
 import { HealthController } from './events/health.controller';
 import { SessionUsersService } from './session-users.service';
 import { SessionsGateway } from './sessions.gateway';
+import { ScheduleModule } from '@nestjs/schedule';
+import { SessionsCleanup } from './sessions-cleanup.service';
 
 @Global()
 @Module({
-  imports: [HttpModule, EventEmitterModule.forRoot()],
+  imports: [HttpModule, EventEmitterModule.forRoot(), ScheduleModule.forRoot()],
   controllers: [EventsController, HealthController],
-  providers: [UserService, SessionUsersService, SessionsGateway],
+  providers: [
+    UserService,
+    SessionUsersService,
+    SessionsGateway,
+    SessionsCleanup,
+  ],
   exports: [],
 })
 export class SocketsModule {}

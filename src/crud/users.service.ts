@@ -80,4 +80,21 @@ export class UserService {
     );
     return (await lastValueFrom(userOb)).data;
   }
+
+  public async cleanSessions(sessionId: string, users: string[]) {
+    this.logger.debug(
+      `POST ${this.configService.get(
+        'ENDPOINT',
+      )}/v1/sessions/${sessionId}/users/clean`,
+    );
+    const userOb = this.httpService.post(
+      `${this.configService.get(
+        'ENDPOINT',
+      )}/v1/sessions/${sessionId}/users/clean`,
+      {
+        onlineUserId: users,
+      },
+    );
+    return (await lastValueFrom(userOb)).data;
+  }
 }

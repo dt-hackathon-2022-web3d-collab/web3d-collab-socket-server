@@ -44,6 +44,14 @@ export class SessionUsersService {
   public async leave(socketId: string): Promise<void> {
     this.logger.debug(`Removing socket ${socketId}`);
     await this.cacheManager.del(socketId);
+
+    let socketList: any = await this.cacheManager.get('SOCKET_LIST');
+    if (!socketList) {
+      socketList = {};
+    }
+    delete socketList[socketId];
+
+    await this.cacheManager.set('SOCKET_LIST', socketList, 0);
   }
 
   public async getUserFromSocket(socketId: string): Promise<SessionUser> {
@@ -92,5 +100,15 @@ export class SessionUsersService {
     this.logger.debug(`Saving user ${user.id} for socket ${socketId}`);
     this.logger.debug(user);
     await this.cacheManager.set(socketId, user, 10000000);
+
+    let socketList: any = await this.cacheManager.get('SOCKET_LIST');
+    if (!socketList) {
+      socketList = {};
+    }
+    socketList[socketId] = {
+      userId: user.id,
+      sessionId: user.sessionId,
+    };
+    await this.cacheManager.set('SOCKET_LIST', socketList, 0);
   }
 }
