@@ -103,7 +103,10 @@ export class SessionsGateway
       this.logger.debug(
         `Getting existing user ${joinMsg.userId} in session ${joinMsg.sessionId}`,
       );
-      user = await this.userService.getUser(joinMsg.sessionId, joinMsg.userId);
+      user = await this.userService.setOnline(
+        joinMsg.sessionId,
+        joinMsg.userId,
+      );
     }
 
     this.logger.debug(
