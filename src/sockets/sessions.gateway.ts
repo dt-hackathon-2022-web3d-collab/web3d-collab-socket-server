@@ -10,13 +10,12 @@ import {
 import { Server, Socket } from 'socket.io';
 import { User } from '../crud/entities/user.entity';
 import { UserService } from '../crud/users.service';
-import { BroadcastService } from './brodcast.service';
 import { UserJoin } from './dto/message.dto';
 
 import { OnEvent } from '@nestjs/event-emitter';
-import { UpdateEvent } from './events/update-event';
 import { plainToInstance } from 'class-transformer';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateEvent } from './events/update-event';
 import { SessionUsersService } from './session-users.service';
 
 @WebSocketGateway({
@@ -32,7 +31,6 @@ export class SessionsGateway implements OnGatewayDisconnect {
 
   constructor(
     private readonly userService: UserService,
-    private readonly broadcastService: BroadcastService,
     private readonly sessionUsersService: SessionUsersService,
   ) {}
 
@@ -49,7 +47,7 @@ export class SessionsGateway implements OnGatewayDisconnect {
       this.logger.debug(
         `Broadcasting user list message to session ${user.sessionId}`,
       );
-      this.broadcastService.updateUserList(socket, user.sessionId);
+      this.updateUserList(socket, user.sessionId);
     } catch (exception) {
       this.logger.error(exception);
     }
@@ -96,9 +94,13 @@ export class SessionsGateway implements OnGatewayDisconnect {
     this.logger.debug(
       `Broadcasting user list message to session ${joinMsg.sessionId}`,
     );
-    this.broadcastService.updateUserList(socket, joinMsg.sessionId);
+    this.updateUserList(socket, joinMsg.sessionId);
 
     return user;
+  }
+
+  private updateUserList(socket: Socket, sessionId: string) {
+    socket.broadcast.to(sessionId).emit('users', {});
   }
 
   @SubscribeMessage('camera-transform')
