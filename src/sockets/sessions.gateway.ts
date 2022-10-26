@@ -77,7 +77,8 @@ export class SessionsGateway implements OnGatewayDisconnect {
   
   @SubscribeMessage('camera-transform')
   async identity(@MessageBody() transform: any, @ConnectedSocket() socket: Socket): Promise<number> {
-    
+    this.logger.debug(`Camera transform`);
+    this.logger.debug(transform);
     const user = await this.sessionUsersService.transform(socket.id, transform);
     socket.broadcast.in(user.sessionId).emit('position',transform);
     return undefined;
