@@ -10,7 +10,7 @@ import type { ClientOpts } from 'redis';
     CacheModule.register<ClientOpts>({
       isGlobal: true,
       store: redisStore,
-
+      ttl: 0,
       host: 'localhost',
       port: 6379,
     }),

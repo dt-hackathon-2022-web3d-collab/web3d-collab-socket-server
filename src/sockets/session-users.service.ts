@@ -88,6 +88,6 @@ export class SessionUsersService {
 
   private async saveUser(socketId: string, user: SessionUser): Promise<void> {
     this.logger.debug(`Saving user ${user.id} for socket ${socketId}`);
-    await this.cacheManager.set(socketId, user, 0);
+    await this.cacheManager.set(socketId, user, 10000000);
   }
 }
