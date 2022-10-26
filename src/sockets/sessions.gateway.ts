@@ -37,10 +37,14 @@ export class SessionsGateway implements OnGatewayDisconnect {
   ) {}
 
   async handleDisconnect(socket: Socket): Promise<void> {
-    const user = await this.sessionUsersService.getUserFromSocket(socket.id);
-    await this.userService.setOffline(user.sessionId, user.id);
-    await this.sessionUsersService.leave(socket.id);
-    this.broadcastService.updateUserList(socket, user.sessionId);
+    try {
+      const user = await this.sessionUsersService.getUserFromSocket(socket.id);
+      await this.userService.setOffline(user.sessionId, user.id);
+      await this.sessionUsersService.leave(socket.id);
+      this.broadcastService.updateUserList(socket, user.sessionId);
+    } catch (exception) {
+      this.logger.error(exception);
+    }
   }
 
   @SubscribeMessage('join')
