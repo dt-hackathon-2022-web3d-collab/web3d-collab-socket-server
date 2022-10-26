@@ -2,7 +2,6 @@ import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { UserService } from 'src/crud/users.service';
 import { Cache } from 'cache-manager';
-import { timingSafeEqual } from 'crypto';
 
 @Injectable()
 export class SessionsCleanup {
@@ -13,7 +12,7 @@ export class SessionsCleanup {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_MINUTE)
   async cleanup() {
     this.logger.debug('Cleaning up sessions');
     let sockets = await this.cacheManager.get('SOCKET_LIST');
