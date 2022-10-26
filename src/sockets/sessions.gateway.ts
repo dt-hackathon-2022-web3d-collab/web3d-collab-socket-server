@@ -123,7 +123,9 @@ export class SessionsGateway implements OnGatewayDisconnect {
 
   @OnEvent('update', { async: true })
   async handleUpdateEvent(event: UpdateEvent) {
-    this.logger.debug(`Update: ${event.sessionId} ${event.type}`);
+    this.logger.debug(
+      `Broadcasting update refresh ${event.type} for ${event.sessionId}`,
+    );
     await this.server.to(event.sessionId).emit(event.type, {});
   }
 }
