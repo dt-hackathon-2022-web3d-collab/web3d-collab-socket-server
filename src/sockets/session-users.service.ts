@@ -23,6 +23,9 @@ export class SessionUsersService {
         lastTransform: null,
         lastVariant: null,
       };
+    } else {
+      this.logger.debug(`Found existing user`);
+      this.logger.debug(JSON.stringify(user));
     }
 
     this.logger.debug(`Saving socket ${socketId}`);

@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
@@ -23,7 +24,9 @@ import { User } from 'src/crud/entities/user.entity';
     origin: '*',
   },
 })
-export class SessionsGateway implements OnGatewayDisconnect {
+export class SessionsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   private readonly logger = new Logger(SessionsGateway.name);
 
   @WebSocketServer()
@@ -34,6 +37,11 @@ export class SessionsGateway implements OnGatewayDisconnect {
     private readonly sessionUsersService: SessionUsersService,
   ) {}
 
+  async handleConnection(socket: Socket, ...args: any[]) {
+    this.logger.debug(`Connecting socket ${socket.id}`);
+    await this.sessionUsersService.join('', '', socket.id);
+  }
+
   async handleDisconnect(socket: Socket): Promise<void> {
     try {
       this.logger.debug(`Disconnecting user for socket ${socket.id}`);
@@ -42,8 +50,8 @@ export class SessionsGateway implements OnGatewayDisconnect {
         `Setting user ${user.id} for session ${user.sessionId} offline`,
       );
       await this.userService.setOffline(user.sessionId, user.id);
-      this.logger.debug(`Removing socket ${socket.id} from list`);
-      await this.sessionUsersService.leave(socket.id);
+      //this.logger.debug(`Removing socket ${socket.id} from list`);
+      //await this.sessionUsersService.leave(socket.id);
       this.logger.debug(
         `Broadcasting user list message to session ${user.sessionId}`,
       );
