@@ -148,16 +148,16 @@ export class SessionsGateway
 
     //broadcast.
 
-    this.server.emit('camera-updated', {
-      userId: user.id,
-      sessionId: user.sessionId,
-      transform,
-    });
-    /* socket.in(user.sessionId).emit('camera-updated', {
+    /* this.server.emit('camera-updated', {
       userId: user.id,
       sessionId: user.sessionId,
       transform,
     }); */
+    socket.in(user.sessionId).emit('camera-updated', {
+      userId: user.id,
+      sessionId: user.sessionId,
+      transform,
+    });
     return undefined;
   }
 
