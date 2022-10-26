@@ -56,16 +56,25 @@ export class SessionsGateway implements OnGatewayDisconnect {
       `User: ${joinMsg.name} connecting to Session: ${joinMsg.sessionId}`,
     );
 
-    const userDto = plainToInstance(CreateUserDto, {
-      name: joinMsg.name,
-      online: true,
-    });
+    let user;
 
-    const user = await this.userService.createUser(joinMsg.sessionId, userDto);
+    if (!joinMsg.userId) {
+      const userDto = plainToInstance(CreateUserDto, {
+        name: joinMsg.name,
+        online: true,
+      });
 
-    this.logger.debug(
-      `Storing join information ${socket.id},${user.id},${joinMsg.sessionId}`,
-    );
+      user = await this.userService.createUser(joinMsg.sessionId, userDto);
+
+      this.logger.debug(
+        `Storing join information ${socket.id},${user.id},${joinMsg.sessionId}`,
+      );
+    } else {
+      this.logger.debug(
+        `Getting existing user ${joinMsg.userId} in session ${joinMsg.sessionId}`,
+      );
+      user = await this.userService.getUser(joinMsg.sessionId, joinMsg.userId);
+    }
 
     await this.sessionUsersService.join(joinMsg.sessionId, user.id, socket.id);
     await socket.join(joinMsg.sessionId);

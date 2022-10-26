@@ -18,13 +18,29 @@ export class UserService {
     createUserDto: CreateUserDto,
   ): Promise<UserDto> {
     console.log(
-      `${this.configService.get('ENDPOINT')}/v1/sessions/${sessionId}/users`,
+      `POST ${this.configService.get(
+        'ENDPOINT',
+      )}/v1/sessions/${sessionId}/users`,
     );
     const userOb = this.httpService.post(
       `${this.configService.get('ENDPOINT')}/v1/sessions/${sessionId}/users`,
       {
         ...createUserDto,
       },
+    );
+    return (await lastValueFrom(userOb)).data;
+  }
+
+  async getUser(sessionId: string, userId: string): Promise<UserDto> {
+    console.log(
+      `GET ${this.configService.get(
+        'ENDPOINT',
+      )}/v1/sessions/${sessionId}/users/${userId}`,
+    );
+    const userOb = this.httpService.get(
+      `${this.configService.get(
+        'ENDPOINT',
+      )}/v1/sessions/${sessionId}/users/${userId}`,
     );
     return (await lastValueFrom(userOb)).data;
   }

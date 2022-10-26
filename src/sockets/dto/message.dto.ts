@@ -4,4 +4,5 @@ export abstract class Message {
 
 export class UserJoin extends Message {
   name: string;
+  userId?: string;
 }
