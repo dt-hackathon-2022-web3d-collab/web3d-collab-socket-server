@@ -23,6 +23,7 @@ import { User } from 'src/crud/entities/user.entity';
   cors: {
     origin: '*',
   },
+  pingInterval: 10000,
 })
 export class SessionsGateway
   implements OnGatewayConnection, OnGatewayDisconnect
