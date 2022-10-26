@@ -6,11 +6,12 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SessionUsersService } from './session-users.service';
 import { SessionsGateway } from './sessions.gateway';
 import { EventsController } from './events/events.controller';
+import { HealthController } from './events/health.controller';
 
 @Global()
 @Module({
   imports: [HttpModule, EventEmitterModule.forRoot()],
-  controllers: [EventsController],
+  controllers: [EventsController, HealthController],
   providers: [
     UserService,
     SessionUsersService,
