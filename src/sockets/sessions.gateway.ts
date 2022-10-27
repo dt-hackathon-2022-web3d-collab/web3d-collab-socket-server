@@ -188,6 +188,26 @@ export class SessionsGateway
     return undefined;
   }
 
+  @SubscribeMessage('pointer-change')
+  async pointerChange(
+    @MessageBody() pointer: any,
+    @ConnectedSocket() socket: Socket,
+  ): Promise<number> {
+    this.logger.debug(`Pointer change from socket ${socket.id}`);
+    this.logger.debug(JSON.stringify(pointer));
+    const user = await this.sessionUsersService.getUserFromSocket(socket.id);
+    this.logger.debug(
+      `Broadcasting Pointer updated from user ${user.id} to session ${user.sessionId} coming from ${socket.handshake.address}`,
+    );
+
+    socket.in(user.sessionId).emit('pointer-updated', {
+      userId: user.id,
+      sessionId: user.sessionId,
+      pointer,
+    });
+    return undefined;
+  }
+
   @OnEvent('update', { async: true })
   async handleUpdateEvent(event: UpdateEvent) {
     this.logger.debug(
